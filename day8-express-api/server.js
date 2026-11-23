@@ -1,10 +1,13 @@
 const express = require("express");
 const dotenv = require("dotenv");
 
+dotenv.config();
+
+const prisma = require("./config/prisma");
 const notesRoutes = require("./routes/notesRoutes");
 const productRoutes = require("./routes/productRoutes");
 
-dotenv.config();
+
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -32,7 +35,26 @@ app.use((req, res) => {
   });
 });
 
-// Server
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+// Connect Prisma to Neon PostgreSQL and start server
+const startServer = async () => {
+  try {
+    // Connect Prisma to Neon
+    await prisma.$connect();
+
+    // Test database connection
+    await prisma.$queryRaw`SELECT 1`;
+
+    console.log("Prisma connected to Neon successfully!");
+
+    // Start Express server
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+
+  } catch (error) {
+    console.error("Prisma connection failed:", error.message);
+    process.exit(1);
+  }
+};
+
+startServer();

@@ -1,97 +1,140 @@
-let notes = [];
-let nextId = 1;
+const prisma = require("../config/prisma");
 
 // GET all notes
-const getAllNotes = (req, res) => {
-  res.status(200).json(notes);
+const getAllNotes = async (req, res) => {
+  try {
+    const notes = await prisma.note.findMany({
+      orderBy: { id: "asc" }
+    });
+
+    res.status(200).json(notes);
+  } catch (error) {
+    res.status(500).json({
+      message: "Database error",
+      error: error.message
+    });
+  }
 };
 
 // GET single note
-const getNoteById = (req, res) => {
-  const id = Number(req.params.id);
+const getNoteById = async (req, res) => {
+  try {
+    const id = Number(req.params.id);
 
-  const note = notes.find((note) => note.id === id);
+    const note = await prisma.note.findUnique({
+      where: { id }
+    });
 
-  if (!note) {
-    return res.status(404).json({
-      message: "Note not found",
+    if (!note) {
+      return res.status(404).json({
+        message: "Note not found"
+      });
+    }
+
+    res.status(200).json(note);
+  } catch (error) {
+    res.status(500).json({
+      message: "Database error",
+      error: error.message
     });
   }
-
-  res.status(200).json(note);
 };
 
 // POST create note
-const createNote = (req, res) => {
-  const { title, content } = req.body;
+const createNote = async (req, res) => {
+  try {
+    const { title, content } = req.body;
 
-  if (!title || !content) {
-    return res.status(400).json({
-      message: "Title and content are required",
+    if (!title || !content) {
+      return res.status(400).json({
+        message: "Title and content are required"
+      });
+    }
+
+    const note = await prisma.note.create({
+      data: { title, content }
+    });
+
+    res.status(201).json({
+      message: "Note created successfully",
+      note
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Database error",
+      error: error.message
     });
   }
-
-  const newNote = {
-    id: nextId++,
-    title,
-    content,
-  };
-
-  notes.push(newNote);
-
-  res.status(201).json({
-    message: "Note created successfully",
-    note: newNote,
-  });
 };
 
 // PUT update note
-const updateNote = (req, res) => {
-  const id = Number(req.params.id);
+const updateNote = async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const { title, content } = req.body;
 
-  const note = notes.find((note) => note.id === id);
+    if (!title || !content) {
+      return res.status(400).json({
+        message: "Title and content are required"
+      });
+    }
 
-  if (!note) {
-    return res.status(404).json({
-      message: "Note not found",
+    const result = await prisma.note.updateMany({
+      where: { id },
+      data: { title, content }
+    });
+
+    if (result.count === 0) {
+      return res.status(404).json({
+        message: "Note not found"
+      });
+    }
+
+    const note = await prisma.note.findUnique({
+      where: { id }
+    });
+
+    res.status(200).json({
+      message: "Note updated successfully",
+      note
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Database error",
+      error: error.message
     });
   }
-
-  const { title, content } = req.body;
-
-  if (!title || !content) {
-    return res.status(400).json({
-      message: "Title and content are required",
-    });
-  }
-
-  note.title = title;
-  note.content = content;
-
-  res.status(200).json({
-    message: "Note updated successfully",
-    note,
-  });
 };
 
 // DELETE note
-const deleteNote = (req, res) => {
-  const id = Number(req.params.id);
+const deleteNote = async (req, res) => {
+  try {
+    const id = Number(req.params.id);
 
-  const noteIndex = notes.findIndex((note) => note.id === id);
+    const note = await prisma.note.findUnique({
+      where: { id }
+    });
 
-  if (noteIndex === -1) {
-    return res.status(404).json({
-      message: "Note not found",
+    if (!note) {
+      return res.status(404).json({
+        message: "Note not found"
+      });
+    }
+
+    await prisma.note.delete({
+      where: { id }
+    });
+
+    res.status(200).json({
+      message: "Note deleted successfully",
+      note
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Database error",
+      error: error.message
     });
   }
-
-  const deletedNote = notes.splice(noteIndex, 1);
-
-  res.status(200).json({
-    message: "Note deleted successfully",
-    note: deletedNote[0],
-  });
 };
 
 module.exports = {
@@ -99,5 +142,5 @@ module.exports = {
   getNoteById,
   createNote,
   updateNote,
-  deleteNote,
+  deleteNote
 };
