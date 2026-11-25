@@ -1,3 +1,4 @@
+
 import {
   BrowserRouter,
   Routes,
@@ -5,7 +6,7 @@ import {
 } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
-
+import EditItem from "./pages/EditItem";
 import Home from "./pages/Home";
 import AddItem from "./pages/AddItem";
 import Favorites from "./pages/Favorites";
@@ -22,7 +23,7 @@ function App() {
         <Navbar />
 
         <Routes>
-
+          <Route path="/edit/:id" element={<EditItem />} />
           <Route path="/" element={<Home />} />
 
           <Route path="/add" element={<AddItem />} />

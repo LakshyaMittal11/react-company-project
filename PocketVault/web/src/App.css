@@ -293,3 +293,208 @@
     font-size: 13px;
   }
 }
+/* Loading State */
+
+.loader {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  padding: 60px 20px;
+  color: #8174ff;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error State */
+
+.error-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  padding: 40px 20px;
+  color: #ef4444;
+}
+
+.error-message button {
+  background: #4f46e5;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+}
+
+/* Add Item Form */
+
+.form-page {
+  max-width: 650px;
+  margin: 20px auto;
+  padding: 20px 0;
+}
+
+.form-page h1 {
+  font-size: 28px;
+  margin-bottom: 12px;
+}
+
+.form-description {
+  color: #aaaaaa;
+  margin-bottom: 25px;
+  line-height: 1.5;
+}
+
+.item-form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-group label {
+  font-size: 15px;
+  font-weight: 500;
+  color: #eeeeee;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  background: #161616;
+  color: #ffffff;
+  border: 1px solid #333333;
+  border-radius: 10px;
+  padding: 14px;
+  outline: none;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #8174ff;
+}
+
+.form-group textarea {
+  resize: vertical;
+}
+
+.form-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.cancel-btn {
+  background: transparent;
+  color: white;
+  border: 1px solid #333333;
+  border-radius: 10px;
+  padding: 14px 25px;
+}
+
+.cancel-btn:hover {
+  background: #222222;
+}
+
+.save-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.save-btn:hover {
+  background: #4338ca;
+}
+
+.save-btn:disabled,
+.cancel-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.form-error {
+  color: #ef4444;
+  font-size: 14px;
+}
+
+/* Favorites and Archived Pages */
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  margin-bottom: 12px;
+}
+
+.section-heading h1 {
+  font-size: 26px;
+}
+
+.section-description {
+  color: #aaaaaa;
+  margin-bottom: 28px;
+}
+
+/* Empty State */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 15px;
+  padding: 60px 20px;
+  color: #aaaaaa;
+}
+
+.empty-state svg {
+  color: #8174ff;
+}
+
+.empty-state h3 {
+  color: #eeeeee;
+  font-size: 20px;
+}
+
+.empty-state p {
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* Edit Button */
+
+.edit-btn {
+  color: #8174ff;
+}
+
+.edit-btn:hover {
+  color: #a5a0ff;
+}

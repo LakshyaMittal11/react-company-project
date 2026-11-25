@@ -1,75 +1,153 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import SearchBar from "../components/SearchBar";
 import CategoryFilter from "../components/CategoryFilter";
 import ItemCard from "../components/ItemCard";
+import Loader from "../components/Loader";
+import ErrorMessage from "../components/ErrorMessage";
+
+import {
+  getItems,
+  updateItem,
+  deleteItem
+} from "../services/api";
 
 function Home() {
 
+  const [items, setItems] = useState([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [retry, setRetry] = useState(0);
 
-  const [items, setItems] = useState([
-    {
-      id: 1,
-      title: "Learn React Native",
-      url: "https://reactnative.dev",
-      category: "Read Later",
-      notes: "Learn mobile development",
-      isFavorite: true,
-      isArchived: false
-    },
-    {
-      id: 2,
-      title: "Project Ideas",
-      url: "",
-      category: "Idea",
-      notes: "Create a personal portfolio",
-      isFavorite: false,
-      isArchived: false
-    },
-    {
-      id: 3,
-      title: "Express API",
-      url: "https://expressjs.com",
-      category: "Work",
-      notes: "Learn REST API development",
-      isFavorite: false,
-      isArchived: false
+
+  // GET - Fetch All Items
+  useEffect(() => {
+
+    let active = true;
+
+    getItems()
+      .then((data) => {
+
+        if (!active) return;
+
+        setItems(data);
+        setError("");
+
+      })
+      .catch((err) => {
+
+        if (active) {
+          setError(err.message);
+        }
+
+      })
+      .finally(() => {
+
+        if (active) {
+          setLoading(false);
+        }
+
+      });
+
+    return () => {
+      active = false;
+    };
+
+  }, [retry]);
+
+
+  // PATCH - Favorite / Unfavorite
+  async function handleFavorite(id) {
+
+    const item = items.find(
+      (item) => item.id === id
+    );
+
+    if (!item) return;
+
+    try {
+
+      const isFavorite = !item.isFavorite;
+
+      await updateItem(id, {
+        isFavorite
+      });
+
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === id
+            ? { ...item, isFavorite }
+            : item
+        )
+      );
+
+    } catch (err) {
+
+      alert(err.message);
+
     }
-  ]);
-
-  // Favorite
-  function handleFavorite(id) {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? { ...item, isFavorite: !item.isFavorite }
-          : item
-      )
-    );
   }
 
-  // Archive
-  function handleArchive(id) {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? { ...item, isArchived: !item.isArchived }
-          : item
-      )
-    );
+
+  // PATCH - Archive Item
+  async function handleArchive(id) {
+
+    try {
+
+      await updateItem(id, {
+        isArchived: true
+      });
+
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === id
+            ? { ...item, isArchived: true }
+            : item
+        )
+      );
+
+    } catch (err) {
+
+      alert(err.message);
+
+    }
   }
 
-  // Delete
-  function handleDelete(id) {
 
-    if (!window.confirm("Delete this item?")) return;
+  // DELETE - Delete Item
+  async function handleDelete(id) {
 
-    setItems((prev) =>
-      prev.filter((item) => item.id !== id)
-    );
+    if (!window.confirm("Delete this item?")) {
+      return;
+    }
+
+    try {
+
+      await deleteItem(id);
+
+      setItems((prev) =>
+        prev.filter((item) => item.id !== id)
+      );
+
+    } catch (err) {
+
+      alert(err.message);
+
+    }
   }
+
+
+  // Retry API
+  function handleRetry() {
+
+    setLoading(true);
+    setError("");
+    setRetry((prev) => prev + 1);
+
+  }
+
 
   // Search and Category Filtering
   const filteredItems = items.filter((item) => {
@@ -82,14 +160,34 @@ function Home() {
       (item.url || "").toLowerCase().includes(searchText);
 
     const matchesCategory =
-      category === "All" || item.category === category;
+      category === "All" ||
+      item.category === category;
 
     return (
       matchesSearch &&
       matchesCategory &&
       !item.isArchived
     );
+
   });
+
+
+  // Loading State
+  if (loading) {
+    return <Loader />;
+  }
+
+
+  // Error State
+  if (error) {
+    return (
+      <ErrorMessage
+        message={error}
+        onRetry={handleRetry}
+      />
+    );
+  }
+
 
   return (
     <main className="page">
@@ -121,9 +219,17 @@ function Home() {
       </div>
 
       {filteredItems.length === 0 && (
-        <p className="empty-message">
-          No items found.
-        </p>
+
+        <div className="empty-message">
+
+          <h3>No items found</h3>
+
+          <p>
+            Try a different search or add a new item.
+          </p>
+
+        </div>
+
       )}
 
     </main>

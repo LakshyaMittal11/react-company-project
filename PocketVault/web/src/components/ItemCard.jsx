@@ -1,3 +1,5 @@
+import{ useNavigate } from "react-router-dom";
+import{ Pencil } from "lucide-react";
 import {
   Link,
   FileText,
@@ -14,6 +16,7 @@ function ItemCard({
   onArchive,
   onDelete
 }) {
+    const navigate = useNavigate();
 
   const safeUrl = /^https?:\/\//i.test(item.url || "")
     ? item.url
@@ -74,6 +77,14 @@ function ItemCard({
         ) : (
           <span />
         )}
+
+        <button
+  className="icon-btn edit-btn"
+  onClick={() => navigate(`/edit/${item.id}`)}
+  title="Edit Item"
+>
+  <Pencil size={18} />
+</button>
 
         <button
           className="icon-btn"
